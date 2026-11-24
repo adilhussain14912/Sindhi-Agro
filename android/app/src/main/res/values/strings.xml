@@ -5,12 +5,10 @@
     <string name="widget_desc">پوکن ۽ ٻنيءَ جو تڪڙو احوال هوم اسڪرين تي</string>
     <string name="open_app">ايپ کوليو</string>
     <string name="widget_slogan">سيٽلائيٽ آسمان ۾، ڳالهه هاريءَ جي زبان ۾</string>
-    <string name="widget_app_label">Sindhi-Agro</string>
-    <string name="widget_default_district">حيدرآباد</string>
-    <string name="widget_default_season">10 ڄيٺ 1400 · خريف جو مند</string>
+    <string name="widget_app_label">سنڌاڳڙو</string>
+    <string name="widget_default_season">📅 ڄيٺ · گرما</string>
     <string name="widget_default_saying">ڄيٺ جي جهل، پاڻيءَ جو مل.</string>
     <string name="widget_default_explanation">ڄيٺ ۾ گرمي وڌندي آهي، تنهنڪري ٻنيءَ جي آلاڻ تي نظر رکڻ گهرجي.</string>
-    <string name="widget_default_field_status">🌾 ٻني سرسبز آهي · آلاڻ مناسب</string>
-    <string name="widget_action_open">📲 کڻي کوليو</string>
-    <string name="widget_action_refresh">🔄</string>
+    <string name="widget_default_plant_advice">🌱 ڪپهه · ڪکيارو · مونگ · ٿر ماٺي</string>
+    <string name="widget_action_open">📲 سنڌاڳڙو کوليو</string>
 </resources>

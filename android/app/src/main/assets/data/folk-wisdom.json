@@ -1,7 +1,122 @@
 [
   {
+    "month": "چيت",
+    "sindhi_month_num": 1,
+    "gregorian_approx": "March–April",
+    "season": "وسنت (بهار)",
+    "saying": "چيت جي چانڊي، پوک جي وانڊي.",
+    "explanation": "چيت ۾ موسم نرم ٿيندو آهي — هي پوک لاءِ تياريءَ جو مهينو آهي.",
+    "plant_advice": "🌱 ٽماٽا · مرچون · کاٻو پٽ · ڀاڄيون · ڪپهه (شروع)",
+    "water_tip": "پاڻيءَ جو اندازو رکو — نه گهڻو، نه گهٽ."
+  },
+  {
+    "month": "ويساک",
+    "sindhi_month_num": 2,
+    "gregorian_approx": "April–May",
+    "season": "وسنت (بهار آخر)",
+    "saying": "ويساک ۾ ٻج ڀاڙو، سال ڀر کاڌو پاڙو.",
+    "explanation": "ويساک ۾ فصل جي پوک ڪرڻ سال ڀر جي خوراڪ جي ضمانت آهي.",
+    "plant_advice": "🌱 ڪپهه · ٻاجهري · مڱي · ڀاڄيون · پياز",
+    "water_tip": "ميڙ کان اڳ آلاڻ ضرور ڏيو."
+  },
+  {
     "month": "ڄيٺ",
+    "sindhi_month_num": 3,
+    "gregorian_approx": "May–June",
+    "season": "گرما",
     "saying": "ڄيٺ جي جهل، پاڻيءَ جو مل.",
-    "explanation": "ڄيٺ ۾ گرمي وڌندي آهي، تنهنڪري ٻنيءَ جي آلاڻ تي نظر رکڻ گهرجي."
+    "explanation": "ڄيٺ ۾ گرمي وڌندي آهي، تنهنڪري ٻنيءَ جي آلاڻ تي نظر رکڻ گهرجي.",
+    "plant_advice": "🌱 ڪپهه · ڪکيارو · مونگ · ٿر ماٺي",
+    "water_tip": "ڏينهن ۾ ٻه ڀيرا آبپاشي ڪريو — صبح ۽ شام."
+  },
+  {
+    "month": "آساڙ",
+    "sindhi_month_num": 4,
+    "gregorian_approx": "June–July",
+    "season": "برسات",
+    "saying": "آساڙ جو مينهن، ڪسان جو چينهن.",
+    "explanation": "آساڙ ۾ مينهن ايندو آهي، جيڪو فصلن لاءِ قدرتي نعمت آهي.",
+    "plant_advice": "🌱 ٻاجهري · ڪک · مڱي · چاول · تل",
+    "water_tip": "مينهن جي پاڻيءَ کي ٻنيءَ ۾ ئي روڪيو."
+  },
+  {
+    "month": "سرواڻ",
+    "sindhi_month_num": 5,
+    "gregorian_approx": "July–August",
+    "season": "برسات",
+    "saying": "سرواڻ جو پاڻي، هاري جي ڪماڻي.",
+    "explanation": "سرواڻ ۾ مينهن جو پاڻي فصل کي پروان چاڙهيندو آهي.",
+    "plant_advice": "🌱 چاول · ڪک · تل · مونگ · ڦلّي",
+    "water_tip": "زياده مينهن هجي ته نيڪاليءَ جو بندوبست ڪريو."
+  },
+  {
+    "month": "ڀادون",
+    "sindhi_month_num": 6,
+    "gregorian_approx": "August–September",
+    "season": "برسات آخر",
+    "saying": "ڀادون جي ڀاريءَ ۾، هاري جي خوشياريءَ ۾.",
+    "explanation": "ڀادون ۾ فصل بيهندو آهي، هاري کي خيال رکڻو آهي.",
+    "plant_advice": "🌱 مونگ · ڦلّي · ڪک · مٺي سرسون",
+    "water_tip": "زمين ۾ نمي موجود آهي، گهٽ پاڻي ڏيو."
+  },
+  {
+    "month": "آسو",
+    "sindhi_month_num": 7,
+    "gregorian_approx": "September–October",
+    "season": "خريف",
+    "saying": "آسو ۾ هَرَ هلائي، ربيع جو فصل اپائي.",
+    "explanation": "آسو ۾ ربيع جي فصل لاءِ زمين تيار ڪجي.",
+    "plant_advice": "🌱 ڪڻڪ (تياري) · سرسون · ميتي · پالک",
+    "water_tip": "زمين هَرَ ڏئي آلاڻ وارو پاڻي ڏيو."
+  },
+  {
+    "month": "ڪتي",
+    "sindhi_month_num": 8,
+    "gregorian_approx": "October–November",
+    "season": "خريف / ربيع آغاز",
+    "saying": "ڪتي ۾ ٻج کٽيو، رتي رتي لٽيو.",
+    "explanation": "ڪتي ۾ وقت تي ٻج ڇٽڻ سان فصل ثمر ڏيندو آهي.",
+    "plant_advice": "🌱 ڪڻڪ · جئون · سرسون · چڻا · ميتي",
+    "water_tip": "ٻج ڇٽڻ کان پوءِ هڪ آلاڻ ضرور ڏيو."
+  },
+  {
+    "month": "مگهر",
+    "sindhi_month_num": 9,
+    "gregorian_approx": "November–December",
+    "season": "سياري",
+    "saying": "مگهر جي سياري، فصل جو بهاري.",
+    "explanation": "مگهر ۾ ٿڌ شروع ٿيندي آهي — ربيع فصل هاڻي نشو ونما ڪري ٿو.",
+    "plant_advice": "🌱 ڪڻڪ · جئون · چڻا · سرسون · آلو",
+    "water_tip": "ٻه اٽڪل آلاڻ ڪافي آهن، زياده نه ڏيو."
+  },
+  {
+    "month": "پوهه",
+    "sindhi_month_num": 10,
+    "gregorian_approx": "December–January",
+    "season": "سياري (سرد)",
+    "saying": "پوهه جي پالي، فصل جي والي.",
+    "explanation": "پوهه ۾ ڪنوار پالڻ فصل کي نقصان کان بچائي ٿو.",
+    "plant_advice": "🌱 ميتي · پالک · مٺي · مولي · گاجر",
+    "water_tip": "پالي (frost) کان بچڻ لاءِ شام جو آلاڻ ڏيو."
+  },
+  {
+    "month": "ماگهه",
+    "sindhi_month_num": 11,
+    "gregorian_approx": "January–February",
+    "season": "سياري آخر",
+    "saying": "ماگهه ۾ مينهن وسي، ڪسان جي کيسي.",
+    "explanation": "ماگهه جو مينهن سياري جي فصل لاءِ تمام گهڻو فائدو ڏيندو آهي.",
+    "plant_advice": "🌱 آلو · پياز · ٽماٽا (آغاز) · ميتي",
+    "water_tip": "مينهن جي موسم ۾ فضول آلاڻ نه ڪريو."
+  },
+  {
+    "month": "ڦگڻ",
+    "sindhi_month_num": 12,
+    "gregorian_approx": "February–March",
+    "season": "وسنت آغاز",
+    "saying": "ڦگڻ ۾ گل کليو، هاريءَ جو دل کليو.",
+    "explanation": "ڦگڻ ۾ موسم بهتر ٿيندو آهي، نئين پوک لاءِ وقت آهي.",
+    "plant_advice": "🌱 ڀاڄيون · ٽماٽا · مرچون · کاٻو پٽ · ڪپهه (تياري)",
+    "water_tip": "ربيع فصل ميڙڻ جي تياري ڪريو."
   }
 ]

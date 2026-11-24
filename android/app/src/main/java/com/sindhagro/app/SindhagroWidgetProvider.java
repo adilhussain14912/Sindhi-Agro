@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.widget.RemoteViews;
 
@@ -17,34 +16,42 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
 
 public class SindhagroWidgetProvider extends AppWidgetProvider {
 
     public static final String ACTION_REFRESH_WIDGET = "com.sindhagro.app.ACTION_REFRESH_WIDGET";
-    private static final String PREFS_NAME = "com.sindhagro.app.widget_prefs";
-    private static final String KEY_TIP_INDEX = "widget_tip_index";
 
-    // Proverb / Agro Tip data structure
-    private static class TipItem {
-        final String saying;
-        final String explanation;
-
-        TipItem(String saying, String explanation) {
-            this.saying = saying;
-            this.explanation = explanation;
-        }
-    }
-
-    // Authentic Sindhi agricultural proverbs and folk wisdom
-    private static final String[][] FALLBACK_PROVERBS = {
-        {"ڄيٺ جي جهل، پاڻيءَ جو مل.", "ڄيٺ ۾ گرمي وڌندي آهي، تنهنڪري ٻنيءَ جي آلاڻ تي نظر رکڻ گهرجي."},
-        {"آکاڙ ۾ هَرَ هلائي، سو ئي انُ اپائي.", "وقت سر زمين کي هَرَ ڏئي تيار ڪرڻ سان فصل سٺو ۽ سرسبز ٿئي ٿو."},
-        {"پاڻي گهٽ، ڀاڻ وڌيڪ؛ ٻني ٿئي سون سريڪ.", "پاڻي ۽ ڀاڻ جو متوازن استعمال فصل کي مضبوط بڻائي ٿو."},
-        {"صبح جو ماڪ، ٻنيءَ لاءِ شفا پاڪ.", "ماڪ پوکن جي آلاڻ برقرار رکڻ ۾ انتهائي مددگار هوندي آهي."},
-        {"سيٽلائيٽ آسمان ۾، ڳالهه هاريءَ جي زبان ۾.", "سنڌاڳڙو سيٽلائيٽ سان پنهنجي ٻنيءَ جي آلاڻ ۽ صحت چيڪ ڪريو."}
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Sindhi month name ↔ Gregorian month mapping.
+    // Sindhi Sambat months map approximately to pairs of Gregorian months.
+    // We pick the month name based on the Gregorian calendar month so that
+    // the widget works without a Sindhi calendar engine.
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    private static final String[] SINDHI_MONTHS_BY_GREGORIAN = {
+        // Jan=0  Feb=1   Mar=2   Apr=3   May=4   Jun=5
+           "پوهه","ماگهه","ڦگڻ", "چيت", "ويساک","ڄيٺ",
+        // Jul=6   Aug=7   Sep=8   Oct=9   Nov=10  Dec=11
+           "آساڙ","سرواڻ","ڀادون","آسو", "ڪتي", "مگهر"
     };
+
+    // Built-in fallback data matching folk-wisdom.json structure.
+    // Keys: Sindhi month name (same as "month" field in JSON).
+    private static final String[][] MONTH_DATA = {
+        {"چيت",   "وسنت (بهار)",      "چيت جي چانڊي، پوک جي وانڊي.",              "چيت ۾ موسم نرم ٿيندو آهي — هي پوک لاءِ تياريءَ جو مهينو آهي.",                              "🌱 ٽماٽا · مرچون · کاٻو پٽ · ڀاڄيون · ڪپهه"},
+        {"ويساک", "وسنت (بهار آخر)", "ويساک ۾ ٻج ڀاڙو، سال ڀر کاڌو پاڙو.",       "ويساک ۾ فصل جي پوک ڪرڻ سال ڀر جي خوراڪ جي ضمانت آهي.",                                      "🌱 ڪپهه · ٻاجهري · مڱي · ڀاڄيون · پياز"},
+        {"ڄيٺ",   "گرما",             "ڄيٺ جي جهل، پاڻيءَ جو مل.",                "ڄيٺ ۾ گرمي وڌندي آهي، تنهنڪري ٻنيءَ جي آلاڻ تي نظر رکڻ گهرجي.",                            "🌱 ڪپهه · ڪکيارو · مونگ · ٿر ماٺي"},
+        {"آساڙ",  "برسات",            "آساڙ جو مينهن، ڪسان جو چينهن.",            "آساڙ ۾ مينهن ايندو آهي، جيڪو فصلن لاءِ قدرتي نعمت آهي.",                                    "🌱 ٻاجهري · ڪک · مڱي · چاول · تل"},
+        {"سرواڻ", "برسات",            "سرواڻ جو پاڻي، هاري جي ڪماڻي.",            "سرواڻ ۾ مينهن جو پاڻي فصل کي پروان چاڙهيندو آهي.",                                           "🌱 چاول · ڪک · تل · مونگ · ڦلّي"},
+        {"ڀادون", "برسات آخر",       "ڀادون جي ڀاريءَ ۾، هاري جي خوشياريءَ ۾.", "ڀادون ۾ فصل بيهندو آهي، هاري کي خيال رکڻو آهي.",                                             "🌱 مونگ · ڦلّي · ڪک · مٺي سرسون"},
+        {"آسو",   "خريف",             "آسو ۾ هَرَ هلائي، ربيع جو فصل اپائي.",     "آسو ۾ ربيع جي فصل لاءِ زمين تيار ڪجي.",                                                       "🌱 ڪڻڪ (تياري) · سرسون · ميتي · پالک"},
+        {"ڪتي",   "خريف / ربيع آغاز","ڪتي ۾ ٻج کٽيو، رتي رتي لٽيو.",              "ڪتي ۾ وقت تي ٻج ڇٽڻ سان فصل ثمر ڏيندو آهي.",                                                "🌱 ڪڻڪ · جئون · سرسون · چڻا · ميتي"},
+        {"مگهر",  "سياري",            "مگهر جي سياري، فصل جو بهاري.",              "مگهر ۾ ٿڌ شروع ٿيندي آهي — ربيع فصل هاڻي نشو ونما ڪري ٿو.",                                 "🌱 ڪڻڪ · جئون · چڻا · سرسون · آلو"},
+        {"پوهه",  "سياري (سرد)",     "پوهه جي پالي، فصل جي والي.",                "پوهه ۾ ڪنوار پالڻ فصل کي نقصان کان بچائي ٿو.",                                               "🌱 ميتي · پالک · مٺي · مولي · گاجر"},
+        {"ماگهه", "سياري آخر",       "ماگهه ۾ مينهن وسي، ڪسان جي کيسي.",         "ماگهه جو مينهن سياري جي فصل لاءِ تمام گهڻو فائدو ڏيندو آهي.",                               "🌱 آلو · پياز · ٽماٽا (آغاز) · ميتي"},
+        {"ڦگڻ",   "وسنت آغاز",       "ڦگڻ ۾ گل کليو، هاريءَ جو دل کليو.",        "ڦگڻ ۾ موسم بهتر ٿيندو آهي، نئين پوک لاءِ وقت آهي.",                                         "🌱 ڀاڄيون · ٽماٽا · مرچون · کاٻو پٽ · ڪپهه (تياري)"}
+    };
+    // Index positions in MONTH_DATA row: 0=month, 1=season, 2=saying, 3=explanation, 4=plant_advice
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -57,243 +64,134 @@ public class SindhagroWidgetProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         if (intent != null && ACTION_REFRESH_WIDGET.equals(intent.getAction())) {
-            // Cycle tip index in preferences
-            cycleTipIndex(context);
-
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            int singleId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+            int singleId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID);
             if (singleId != AppWidgetManager.INVALID_APPWIDGET_ID) {
                 updateAppWidget(context, appWidgetManager, singleId);
             } else {
                 ComponentName thisWidget = new ComponentName(context, SindhagroWidgetProvider.class);
-                int[] allIds = appWidgetManager.getAppWidgetIds(thisWidget);
-                for (int id : allIds) {
+                for (int id : appWidgetManager.getAppWidgetIds(thisWidget)) {
                     updateAppWidget(context, appWidgetManager, id);
                 }
             }
         }
     }
 
-    private static void cycleTipIndex(Context context) {
-        try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            int current = prefs.getInt(KEY_TIP_INDEX, 0);
-            prefs.edit().putInt(KEY_TIP_INDEX, current + 1).apply();
-        } catch (Exception ignored) {
-        }
-    }
-
+    // ─────────────────────────────────────────────────────────
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         try {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_sindhagro);
 
-            // 1. Header Bar: App label, Location, Refresh Button
-            views.setTextViewText(R.id.widget_app_label, "Sindhi-Agro");
-            String location = resolveLocation(context);
-            views.setTextViewText(R.id.widget_location, location);
+            // 1. Determine current Sindhi month from device calendar
+            String sindhiMonth = currentSindhiMonth();
 
-            // Refresh action PendingIntent
-            Intent refreshIntent = new Intent(context, SindhagroWidgetProvider.class);
-            refreshIntent.setAction(ACTION_REFRESH_WIDGET);
-            refreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            // 2. Load month-specific data (folk-wisdom.json → fallback to built-in table)
+            String[] monthData = loadMonthData(context, sindhiMonth);
+            String season      = monthData[0];
+            String saying      = monthData[1];
+            String explanation = monthData[2];
+            String plantAdvice = monthData[3];
 
+            // 3. Build month+season label (all Sindhi)
+            String monthSeason = "📅 " + sindhiMonth + " · " + season;
+
+            // 4. Set RemoteViews text
+            views.setTextViewText(R.id.widget_app_label, context.getString(R.string.app_name));
+            views.setTextViewText(R.id.widget_month_season,    monthSeason);
+            views.setTextViewText(R.id.widget_tip_saying,      "« " + saying + " »");
+            views.setTextViewText(R.id.widget_tip_explanation, explanation);
+            views.setTextViewText(R.id.widget_plant_advice,    plantAdvice);
+
+            // 5. Refresh PendingIntent → cycles the widget data on tap
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 flags |= PendingIntent.FLAG_IMMUTABLE;
             }
 
-            PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    appWidgetId,
-                    refreshIntent,
-                    flags
-            );
-            views.setOnClickPendingIntent(R.id.widget_btn_refresh, refreshPendingIntent);
+            Intent refreshIntent = new Intent(context, SindhagroWidgetProvider.class);
+            refreshIntent.setAction(ACTION_REFRESH_WIDGET);
+            refreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            PendingIntent refreshPI = PendingIntent.getBroadcast(context, appWidgetId, refreshIntent, flags);
+            views.setOnClickPendingIntent(R.id.widget_btn_refresh, refreshPI);
 
-            // 2. Main Body: Sindhi agricultural month/season & rotating agro proverb/tip
-            String seasonText = resolveCalendarSeason(context);
-            views.setTextViewText(R.id.widget_calendar_season, seasonText);
-
-            TipItem tip = resolveTip(context);
-            views.setTextViewText(R.id.widget_tip_saying, "«" + tip.saying + "»");
-            views.setTextViewText(R.id.widget_tip_explanation, tip.explanation);
-
-            // 3. Footer Strip: Saved field summary & Open App PendingIntent
-            String fieldSummary = resolveFieldSummary(context);
-            views.setTextViewText(R.id.widget_field_status, fieldSummary);
-
-            // Open MainActivity PendingIntent
+            // 6. Open-app PendingIntent → tapping container or button launches MainActivity
             Intent openIntent = new Intent(context, MainActivity.class);
             openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent openPendingIntent = PendingIntent.getActivity(
-                    context,
-                    0,
-                    openIntent,
-                    flags
-            );
+            PendingIntent openPI = PendingIntent.getActivity(context, 0, openIntent, flags);
+            views.setOnClickPendingIntent(R.id.widget_container, openPI);
+            views.setOnClickPendingIntent(R.id.widget_btn_open, openPI);
 
-            // Attach open intent to container and open button
-            views.setOnClickPendingIntent(R.id.widget_container, openPendingIntent);
-            views.setOnClickPendingIntent(R.id.widget_btn_open, openPendingIntent);
-
-            // Update widget via AppWidgetManager
             appWidgetManager.updateAppWidget(appWidgetId, views);
-        } catch (Exception e) {
-            // Safe fallback: widget host should never crash
-        }
-    }
-
-    private static String resolveLocation(Context context) {
-        try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            String saved = prefs.getString("selected_district", null);
-            if (saved == null || saved.trim().isEmpty()) {
-                saved = prefs.getString("district", null);
-            }
-            if (saved == null || saved.trim().isEmpty()) {
-                saved = prefs.getString("location", null);
-            }
-            if (saved != null && !saved.trim().isEmpty()) {
-                return "📍 " + saved.trim();
-            }
-
-            // Read from sindh-admin.json
-            String json = loadAssetString(context, "data/sindh-admin.json");
-            if (json != null) {
-                JSONObject root = new JSONObject(json);
-                JSONArray divisions = root.optJSONArray("divisions");
-                if (divisions != null && divisions.length() > 0) {
-                    JSONObject div = divisions.optJSONObject(0);
-                    if (div != null) {
-                        JSONArray districts = div.optJSONArray("districts");
-                        if (districts != null && districts.length() > 0) {
-                            JSONObject dist = districts.optJSONObject(0);
-                            if (dist != null) {
-                                String name = dist.optString("name", "");
-                                if (!name.isEmpty()) {
-                                    return "📍 " + name;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         } catch (Exception ignored) {
+            // Widget host must never crash
         }
-        return "📍 حيدرآباد";
     }
 
-    private static String resolveCalendarSeason(Context context) {
+    // ─────────────────────────────────────────────────────────
+    /** Returns the Sindhi month name for today using the device's Gregorian month. */
+    private static String currentSindhiMonth() {
         try {
-            String json = loadAssetString(context, "data/sindhi-calendar.json");
-            if (json != null) {
-                JSONObject root = new JSONObject(json);
-                JSONObject today = root.optJSONObject("today");
-                String sambat = today != null ? today.optString("sindhi_sambat", "") : "";
-                String season = root.optString("season", "");
-                if (season.isEmpty() && today != null) {
-                    season = today.optString("season", "");
-                }
-                if (season.isEmpty()) {
-                    season = "خريف جو مند";
-                }
-                if (!sambat.isEmpty()) {
-                    return "📅 " + sambat + " · " + season;
-                }
+            int gregorianMonth = Calendar.getInstance().get(Calendar.MONTH); // 0-based
+            if (gregorianMonth >= 0 && gregorianMonth < SINDHI_MONTHS_BY_GREGORIAN.length) {
+                return SINDHI_MONTHS_BY_GREGORIAN[gregorianMonth];
             }
-        } catch (Exception ignored) {
-        }
-        return "📅 10 ڄيٺ 1400 · خريف جو مند";
+        } catch (Exception ignored) {}
+        return "ڄيٺ"; // safe fallback
     }
 
-    private static TipItem resolveTip(Context context) {
-        List<TipItem> tips = new ArrayList<>();
-
-        // Load from folk-wisdom.json
+    /**
+     * Looks up folk-wisdom.json for a matching "month" key.
+     * Falls back to built-in MONTH_DATA if file is missing or key not found.
+     * Returns String[4]: {season, saying, explanation, plant_advice}
+     */
+    private static String[] loadMonthData(Context context, String targetMonth) {
+        // Try JSON file first
         try {
-            String json = loadAssetString(context, "data/folk-wisdom.json");
-            if (json != null) {
-                JSONArray arr = new JSONArray(json);
+            String raw = loadAssetString(context, "data/folk-wisdom.json");
+            if (raw != null) {
+                JSONArray arr = new JSONArray(raw);
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject obj = arr.optJSONObject(i);
-                    if (obj != null) {
-                        String saying = obj.optString("saying", "");
+                    if (obj == null) continue;
+                    String month = obj.optString("month", "");
+                    if (month.equals(targetMonth)) {
+                        String season      = obj.optString("season", "");
+                        String saying      = obj.optString("saying", "");
                         String explanation = obj.optString("explanation", "");
+                        String plantAdvice = obj.optString("plant_advice", "");
                         if (!saying.isEmpty()) {
-                            tips.add(new TipItem(saying, explanation));
+                            return new String[]{season, saying, explanation, plantAdvice};
                         }
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception ignored) {}
+
+        // Fallback: built-in MONTH_DATA
+        for (String[] row : MONTH_DATA) {
+            if (row[0].equals(targetMonth)) {
+                return new String[]{row[1], row[2], row[3], row[4]};
+            }
         }
 
-        // Add fallback proverbs
-        for (String[] pair : FALLBACK_PROVERBS) {
-            tips.add(new TipItem(pair[0], pair[1]));
-        }
-
-        // Determine current index from SharedPreferences
-        int index = 0;
-        try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            index = prefs.getInt(KEY_TIP_INDEX, 0);
-        } catch (Exception ignored) {
-        }
-
-        if (tips.isEmpty()) {
-            return new TipItem("ڄيٺ جي جهل، پاڻيءَ جو مل.", "ڄيٺ ۾ گرمي وڌندي آهي، تنهنڪري ٻنيءَ جي آلاڻ تي نظر رکڻ گهرجي.");
-        }
-
-        int selectedIndex = Math.abs(index) % tips.size();
-        return tips.get(selectedIndex);
+        // Last-resort defaults (always Sindhi)
+        return new String[]{
+            "گرما",
+            "ڄيٺ جي جهل، پاڻيءَ جو مل.",
+            "ڄيٺ ۾ گرمي وڌندي آهي، تنهنڪري ٻنيءَ جي آلاڻ تي نظر رکڻ گهرجي.",
+            "🌱 ڪپهه · ڪکيارو · مونگ"
+        };
     }
 
-    private static String resolveFieldSummary(Context context) {
-        try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            String crop = prefs.getString("crop_name", null);
-            String status = prefs.getString("field_status", null);
-            if (status == null || status.trim().isEmpty()) {
-                status = prefs.getString("irrigation_status", null);
-            }
-            if (status == null || status.trim().isEmpty()) {
-                status = prefs.getString("field_summary", null);
-            }
-
-            // Read from widget-data.json
-            if (status == null || status.trim().isEmpty()) {
-                String json = loadAssetString(context, "widget-data.json");
-                if (json != null) {
-                    JSONObject root = new JSONObject(json);
-                    status = root.optString("status", "");
-                    if (status.isEmpty()) {
-                        status = root.optString("subtitle", "");
-                    }
-                }
-            }
-
-            if (status == null || status.trim().isEmpty()) {
-                status = "ٻني سرسبز آهي · آلاڻ مناسب";
-            }
-
-            if (crop != null && !crop.trim().isEmpty()) {
-                return "🌾 " + crop.trim() + " · " + status.trim();
-            }
-            return "🌾 " + status.trim();
-        } catch (Exception ignored) {
-            return "🌾 ٻني سرسبز آهي · آلاڻ مناسب";
-        }
-    }
-
-    private static String loadAssetString(Context context, String assetPath) {
-        try (InputStream is = context.getAssets().open(assetPath);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+    // ─────────────────────────────────────────────────────────
+    private static String loadAssetString(Context context, String path) {
+        try (InputStream is = context.getAssets().open(path);
+             BufferedReader reader = new BufferedReader(
+                     new InputStreamReader(is, StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
+            while ((line = reader.readLine()) != null) sb.append(line);
             return sb.toString();
         } catch (Exception e) {
             return null;
