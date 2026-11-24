@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String APP_URL = "file:///android_asset/index.html";
 
     private WebView webView;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar progressBar;
     private GeolocationPermissions.Callback geolocationCallback;
     private String geolocationOrigin;
@@ -47,11 +45,9 @@ public class MainActivity extends AppCompatActivity {
         applyThemeColors();
 
         webView = findViewById(R.id.webView);
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         progressBar = findViewById(R.id.progressBar);
 
         configureWebView();
-        configureSwipeRefresh();
         configureBackNavigation();
 
         // Request location permission upfront so farm GPS works immediately
@@ -101,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
-                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -145,14 +140,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void configureSwipeRefresh() {
-        swipeRefreshLayout.setColorSchemeColors(
-                ContextCompat.getColor(this, R.color.forest_green),
-                ContextCompat.getColor(this, R.color.mint_accent)
-        );
-        swipeRefreshLayout.setOnRefreshListener(() -> webView.reload());
     }
 
     private void configureBackNavigation() {
