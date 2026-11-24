@@ -1,0 +1,37 @@
+name: Build Sindhi-Agro APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        # If your Android project is inside a subfolder (e.g., android-app), remove the # on the line below:
+        # working-directory: ./android-app
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+        # If your Android project is inside a subfolder (e.g., android-app), remove the # on the line below:
+        # working-directory: ./android-app
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sindhiagro-debug-apk
+          path: "**/build/outputs/apk/debug/*.apk"
